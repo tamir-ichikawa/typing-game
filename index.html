@@ -1,17 +1,37 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/style.css">
-    <title>Phaser - Template</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing Game</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-    <div id="app">
-        <div id="game-container"></div>
+  <main class="game-container">
+    <h1>Typing Game</h1>
+
+    <div class="status-area">
+      <div>TIME: <span id="time">60</span></div>
+      <div>SCORE: <span id="score">0</span></div>
     </div>
-    <script type="module" src="src/main.js"></script>
+
+    <div class="word-area">
+      <p id="word">START</p>
+    </div>
+
+    <input
+      id="input"
+      type="text"
+      placeholder="ここに入力"
+      autocomplete="off"
+      disabled
+    />
+
+    <button id="start-button">START</button>
+
+    <p id="message"></p>
+  </main>
+
+  <script src="main.js"></script>
 </body>
 </html>
