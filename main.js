@@ -1,21 +1,3 @@
-const words = [
-  "apple",
-  "banana",
-  "orange",
-  "grape",
-  "lemon",
-  "peach",
-  "melon",
-  "cherry",
-  "typing",
-  "game",
-  "score",
-  "start",
-  "clear",
-  "speed",
-  "keyboard"
-];
-
 const timeElement = document.getElementById("time");
 const scoreElement = document.getElementById("score");
 const wordElement = document.getElementById("word");
@@ -23,20 +5,23 @@ const inputElement = document.getElementById("input");
 const startButton = document.getElementById("start-button");
 const messageElement = document.getElementById("message");
 
-let currentWord = "";
+let currentText = "";
 let score = 0;
 let time = 60;
 let timerId = null;
 let isPlaying = false;
 
-function getRandomWord() {
-  const randomIndex = Math.floor(Math.random() * words.length);
-  return words[randomIndex];
+// 日本語入力中かどうか
+let isComposing = false;
+
+function getRandomText() {
+  const randomIndex = Math.floor(Math.random() * typingTexts.length);
+  return typingTexts[randomIndex];
 }
 
-function setNewWord() {
-  currentWord = getRandomWord();
-  wordElement.textContent = currentWord;
+function setNewText() {
+  currentText = getRandomText();
+  wordElement.textContent = currentText;
   inputElement.value = "";
 }
 
@@ -55,7 +40,7 @@ function startGame() {
   startButton.disabled = true;
   startButton.textContent = "PLAYING";
 
-  setNewWord();
+  setNewText();
 
   timerId = setInterval(() => {
     time--;
@@ -81,16 +66,34 @@ function endGame() {
   startButton.textContent = "RESTART";
 }
 
-inputElement.addEventListener("input", () => {
+function checkInput() {
   if (!isPlaying) {
     return;
   }
 
-  if (inputElement.value === currentWord) {
+  // 日本語変換中は判定しない
+  if (isComposing) {
+    return;
+  }
+
+  if (inputElement.value === currentText) {
     score++;
     scoreElement.textContent = score;
-    setNewWord();
+    setNewText();
   }
+}
+
+// 日本語入力の変換開始
+inputElement.addEventListener("compositionstart", () => {
+  isComposing = true;
 });
+
+// 日本語入力の変換確定
+inputElement.addEventListener("compositionend", () => {
+  isComposing = false;
+  checkInput();
+});
+
+inputElement.addEventListener("input", checkInput);
 
 startButton.addEventListener("click", startGame);
