@@ -13,9 +13,22 @@ body {
   align-items: center;
 }
 
+/* 古い .game-container 設定
 .game-container {
   width: 90%;
   max-width: 560px;
+  padding: 32px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+*/
+
+/* 新しい .game-container 設定 */
+.game-container {
+  width: 90%;
+  max-width: 760px;
   padding: 32px;
   text-align: center;
   background: rgba(255, 255, 255, 0.08);
@@ -48,9 +61,12 @@ h1 {
   margin: 0;
   font-size: 38px;
   font-weight: bold;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   line-height: 1.5;
-  word-break: keep-all;
+
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 #input {

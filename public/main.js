@@ -19,9 +19,28 @@ function getRandomText() {
   return typingTexts[randomIndex];
 }
 
+function adjustWordSize(text) {
+  if (text.length > 45) {
+    wordElement.style.fontSize = "24px";
+    wordElement.style.lineHeight = "1.5";
+  } else if (text.length > 30) {
+    wordElement.style.fontSize = "28px";
+    wordElement.style.lineHeight = "1.5";
+  } else if (text.length > 18) {
+    wordElement.style.fontSize = "32px";
+    wordElement.style.lineHeight = "1.5";
+  } else {
+    wordElement.style.fontSize = "38px";
+    wordElement.style.lineHeight = "1.5";
+  }
+}
+
 function setNewText() {
   currentText = getRandomText();
+
   wordElement.textContent = currentText;
+  adjustWordSize(currentText);
+
   inputElement.value = "";
 }
 
