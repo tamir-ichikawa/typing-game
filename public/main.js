@@ -32,6 +32,9 @@ const levelTimeElement = document.getElementById("level-time");
 const rankingTitle = document.getElementById("ranking-title");
 const rankingList = document.getElementById("ranking-list");
 
+const gameSoundToggleButton = document.getElementById("sound-toggle-button");
+const modeSoundToggleButton = document.getElementById("mode-sound-toggle-button");
+
 const CHALLENGE_TARGET = 5;
 const CHALLENGE_LIMIT_TIME = 10;
 
@@ -135,19 +138,32 @@ const sounds = {
   button: new Audio("./assets/audio/button.mp3")
 };
 
-const soundToggleButton = document.getElementById("sound-toggle-button");
+const gameSoundToggleButton = document.getElementById("sound-toggle-button");
 
-soundToggleButton.addEventListener("click", () => {
+function updateSoundButtonLabels() {
+  const label = isSoundEnabled ? "SOUND ON" : "SOUND OFF";
+
+  if (gameSoundToggleButton) {
+    gameSoundToggleButton.textContent = label;
+  }
+
+  if (modeSoundToggleButton) {
+    modeSoundToggleButton.textContent = label;
+  }
+}
+
+function toggleSound() {
   isSoundEnabled = !isSoundEnabled;
 
   if (isSoundEnabled) {
-    soundToggleButton.textContent = "SOUND ON";
     startBgm();
   } else {
-    soundToggleButton.textContent = "SOUND OFF";
     stopBgm();
   }
-});
+
+  updateSoundButtonLabels();
+}
+
 
 let isSoundEnabled = true;
 let isBgmStarted = false;
@@ -264,6 +280,10 @@ function showScreen(screenName) {
 
   if (screenName === "mode") {
     modeScreen.classList.remove("hidden");
+  }
+
+  if (screenName === "allRanking") {
+    allRankingScreen.classList.remove("hidden");
   }
 
   if (screenName === "difficulty") {
@@ -683,6 +703,81 @@ async function loadRankingFromFirebase() {
   }
 }
 
+async function loadRankingByKey(rankingKey) {
+  const snapshot = await db
+    .collection("rankings")
+    .doc(rankingKey)
+    .collection("scores")
+    .orderBy("score", "desc")
+    .limit(10)
+    .get();
+
+  const ranking = [];
+
+  snapshot.forEach((doc) => {
+    ranking.push(doc.data());
+  });
+
+  return ranking;
+}
+
+async function loadAllRankingsFromFirebase() {
+  if (!db) {
+    allRankingList.innerHTML = "<p>Firebase未接続です</p>";
+    return;
+  }
+
+  allRankingList.innerHTML = "<p>ランキング読み込み中...</p>";
+
+  try {
+    allRankingList.innerHTML = "";
+
+    const rankingKeys = Object.keys(RANKING_LABELS);
+
+    for (const rankingKey of rankingKeys) {
+      const ranking = await loadRankingByKey(rankingKey);
+      const rankingBlock = createAllRankingBlock(rankingKey, ranking);
+      allRankingList.appendChild(rankingBlock);
+    }
+  } catch (error) {
+    console.error(error);
+    allRankingList.innerHTML = "<p>ランキングの読み込みに失敗しました</p>";
+  }
+}
+
+function createAllRankingBlock(rankingKey, ranking) {
+  const section = document.createElement("section");
+  section.className = "ranking-block";
+
+  const title = document.createElement("h3");
+  title.textContent = RANKING_LABELS[rankingKey] || rankingKey;
+  section.appendChild(title);
+
+  const list = document.createElement("ol");
+
+  if (ranking.length === 0) {
+    const emptyItem = document.createElement("li");
+    emptyItem.textContent = "まだ記録がありません";
+    list.appendChild(emptyItem);
+  } else {
+    ranking.forEach((record, index) => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        <span class="rank-number">${index + 1}位</span>
+        <span class="rank-name">${escapeHtml(record.name)}</span>
+        <span class="rank-score">${record.score}点</span>
+      `;
+
+      list.appendChild(li);
+    });
+  }
+
+  section.appendChild(list);
+
+  return section;
+}
+
 function renderRanking(ranking) {
   rankingList.innerHTML = "";
 
@@ -744,8 +839,39 @@ inputElement.addEventListener("compositionend", () => {
 
 inputElement.addEventListener("input", checkInput);
 
+
+allRankingButton.addEventListener("click", () => {
+  playSound("button");
+  showScreen("allRanking");
+  loadAllRankingsFromFirebase();
+});
+
+allRankingBackButton.addEventListener("click", () => {
+  playSound("button");
+  showScreen("mode");
+});
+
+modeSoundToggleButton.addEventListener("click", () => {
+  toggleSound();
+});
+
+//if (gameSoundToggleButton) {
+//  gameSoundToggleButton.addEventListener("click", () => {
+//    toggleSound();
+//  });
+//}
+
+if (gameSoundToggleButton) {
+  gameSoundToggleButton.addEventListener("click", toggleSound);
+}
+
+if (modeSoundToggleButton) {
+  modeSoundToggleButton.addEventListener("click", toggleSound);
+}
+
 startButton.addEventListener("click", startGame);
 
 loadSavedPlayerName();
 initFirebase();
+updateSoundButtonLabels();
 showScreen("name");
