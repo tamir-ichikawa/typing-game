@@ -1,3 +1,10 @@
+const loadingScreen = document.getElementById("loading-screen");
+const loadingBarFill = document.getElementById("loading-bar-fill");
+const loadingPercent = document.getElementById("loading-percent");
+const loadingDetail = document.getElementById("loading-detail");
+const app = document.getElementById("app");
+const menuCharacterImg = document.getElementById("menu-character-img");
+
 const nameScreen = document.getElementById("name-screen");
 const modeScreen = document.getElementById("mode-screen");
 const allRankingScreen = document.getElementById("all-ranking-screen");
@@ -160,6 +167,105 @@ const BGM_KEYS = [
   "bgmFood"
 ];
 
+const PRELOAD_IMAGES = [
+  {
+    label: "メニューキャラクター",
+    src: "./assets/images/character/menu-character.png",
+    element: menuCharacterImg
+  }
+];
+
+const PRELOAD_AUDIO_KEYS = [
+  ...BGM_KEYS,
+  "correct",
+  "start",
+  "finish",
+  "levelUp",
+  "levelDown",
+  "button"
+];
+
+function updateLoadingProgress(loadedCount, totalCount, detailText) {
+  const percent = Math.floor((loadedCount / totalCount) * 100);
+
+  loadingBarFill.style.width = `${percent}%`;
+  loadingPercent.textContent = `${percent}%`;
+  loadingDetail.textContent = detailText;
+}
+
+async function preloadImage(asset) {
+  const response = await fetch(asset.src);
+
+  if (!response.ok) {
+    throw new Error(`${asset.src} が読み込めません`);
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+
+  if (asset.element) {
+    asset.element.src = objectUrl;
+
+    if (asset.element.decode) {
+      await asset.element.decode().catch(() => {});
+    }
+  }
+}
+
+async function preloadAudioByKey(soundKey) {
+  const sound = sounds[soundKey];
+
+  if (!sound) {
+    throw new Error(`${soundKey} が見つかりません`);
+  }
+
+  const response = await fetch(sound.src);
+
+  if (!response.ok) {
+    throw new Error(`${sound.src} が読み込めません`);
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+
+  sound.src = objectUrl;
+  sound.load();
+}
+
+async function preloadAssets() {
+  const tasks = [];
+
+  for (const imageAsset of PRELOAD_IMAGES) {
+    tasks.push({
+      label: imageAsset.label,
+      load: () => preloadImage(imageAsset)
+    });
+  }
+
+  for (const soundKey of PRELOAD_AUDIO_KEYS) {
+    tasks.push({
+      label: soundKey,
+      load: () => preloadAudioByKey(soundKey)
+    });
+  }
+
+  let loadedCount = 0;
+  const totalCount = tasks.length;
+
+  updateLoadingProgress(0, totalCount, "ゲームを読み込み中...");
+
+  for (const task of tasks) {
+    await task.load();
+
+    loadedCount++;
+    updateLoadingProgress(
+      loadedCount,
+      totalCount,
+      `${task.label} 読み込み完了`
+    );
+  }
+}
+
 function updateSoundButtonLabels() {
   const label = isSoundEnabled ? "SOUND ON" : "SOUND OFF";
 
@@ -299,29 +405,35 @@ let challengeCorrectCount = 0;
 let challengeTimeLeft = CHALLENGE_LIMIT_TIME;
 
 function initFirebase() {
-  if (typeof firebase === "undefined") {
-    firebaseStatusElement.textContent = "Firebase SDKが読み込めていません";
-    return;
-  }
+  return new Promise((resolve) => {
+    if (typeof firebase === "undefined") {
+      firebaseStatusElement.textContent = "Firebase SDKが読み込めていません";
+      resolve(false);
+      return;
+    }
 
-  if (typeof firebaseConfig === "undefined") {
-    firebaseStatusElement.textContent = "firebase-config.jsが見つかりません";
-    return;
-  }
+    if (typeof firebaseConfig === "undefined") {
+      firebaseStatusElement.textContent = "firebase-config.jsが見つかりません";
+      resolve(false);
+      return;
+    }
 
-  firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
 
-  db = firebase.firestore();
+    db = firebase.firestore();
 
-  firebase.auth().signInAnonymously()
-    .then((result) => {
-      currentUser = result.user;
-      firebaseStatusElement.textContent = "Firebase接続OK";
-    })
-    .catch((error) => {
-      console.error(error);
-      firebaseStatusElement.textContent = "Firebase接続エラー";
-    });
+    firebase.auth().signInAnonymously()
+      .then((result) => {
+        currentUser = result.user;
+        firebaseStatusElement.textContent = "Firebase接続OK";
+        resolve(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        firebaseStatusElement.textContent = "Firebase接続エラー";
+        resolve(false);
+      });
+  });
 }
 
 function showScreen(screenName) {
@@ -1111,7 +1223,33 @@ if (modeSoundToggleButton) {
 
 startButton.addEventListener("click", startGame);
 
-loadSavedPlayerName();
-initFirebase();
-updateSoundButtonLabels();
-showScreen("name");
+
+async function bootGame() {
+  try {
+    app.classList.add("hidden");
+    loadingScreen.classList.remove("hidden");
+
+    await preloadAssets();
+
+    loadingDetail.textContent = "Firebaseに接続中...";
+    await initFirebase();
+
+    loadingBarFill.style.width = "100%";
+    loadingPercent.textContent = "100%";
+    loadingDetail.textContent = "読み込み完了！";
+
+    await sleep(300);
+
+    loadingScreen.classList.add("hidden");
+    app.classList.remove("hidden");
+
+    loadSavedPlayerName();
+    updateSoundButtonLabels();
+    showScreen("name");
+  } catch (error) {
+    console.error(error);
+    loadingDetail.textContent = "読み込みに失敗しました。責任者に問い合わせてください。";
+  }
+}
+
+bootGame();
