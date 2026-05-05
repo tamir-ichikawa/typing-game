@@ -32,6 +32,10 @@ const levelTimeElement = document.getElementById("level-time");
 const rankingTitle = document.getElementById("ranking-title");
 const rankingList = document.getElementById("ranking-list");
 
+const allRankingButton = document.getElementById("all-ranking-button");
+const allRankingBackButton = document.getElementById("all-ranking-back-button");
+const allRankingList = document.getElementById("all-ranking-list");
+
 const gameSoundToggleButton = document.getElementById("sound-toggle-button");
 const modeSoundToggleButton = document.getElementById("mode-sound-toggle-button");
 
@@ -137,8 +141,6 @@ const sounds = {
   levelDown: new Audio("./assets/audio/level-down.mp3"),
   button: new Audio("./assets/audio/button.mp3")
 };
-
-const gameSoundToggleButton = document.getElementById("sound-toggle-button");
 
 function updateSoundButtonLabels() {
   const label = isSoundEnabled ? "SOUND ON" : "SOUND OFF";
@@ -271,6 +273,7 @@ function initFirebase() {
 function showScreen(screenName) {
   nameScreen.classList.add("hidden");
   modeScreen.classList.add("hidden");
+  allRankingScreen.classList.add("hidden");
   difficultyScreen.classList.add("hidden");
   gameScreen.classList.add("hidden");
 
@@ -849,10 +852,6 @@ allRankingButton.addEventListener("click", () => {
 allRankingBackButton.addEventListener("click", () => {
   playSound("button");
   showScreen("mode");
-});
-
-modeSoundToggleButton.addEventListener("click", () => {
-  toggleSound();
 });
 
 //if (gameSoundToggleButton) {
