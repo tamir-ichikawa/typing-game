@@ -289,6 +289,9 @@ let selectedDifficultyKey = "";
 let selectedDifficultyLabel = "";
 let selectedTextGroupKey = "";
 
+let latestScoreDocId = "";
+let latestRankingKey = "";
+
 let challengeLevelIndex = 0;
 let challengeCorrectCount = 0;
 let challengeTimeLeft = CHALLENGE_LIMIT_TIME;
@@ -650,7 +653,7 @@ async function endGame() {
   //SE
   playSound("finish");
   playBgm("bgmMenu");
-  
+
   inputElement.disabled = true;
   wordElement.textContent = "FINISH";
   messageElement.textContent = `ゲーム終了！ スコア：${score}`;
@@ -801,7 +804,7 @@ async function saveScoreToFirebase() {
   const rankingKey = getRankingKey();
 
   try {
-    await db
+    const docRef = await db
       .collection("rankings")
       .doc(rankingKey)
       .collection("scores")
@@ -814,6 +817,9 @@ async function saveScoreToFirebase() {
         uid: currentUser.uid,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+
+    latestScoreDocId = docRef.id;
+    latestRankingKey = rankingKey;
 
     messageElement.textContent = `ゲーム終了！ スコア：${score} / ランキングに保存しました`;
   } catch (error) {
@@ -848,7 +854,10 @@ async function loadRankingFromFirebase() {
     const ranking = [];
 
     snapshot.forEach((doc) => {
-      ranking.push(doc.data());
+      ranking.push({
+        id: doc.id,
+        ...doc.data()
+      });
     });
 
     renderRanking(ranking);
@@ -870,9 +879,11 @@ async function loadRankingByKey(rankingKey) {
   const ranking = [];
 
   snapshot.forEach((doc) => {
-    ranking.push(doc.data());
+    ranking.push({
+      id: doc.id,
+      ...doc.data()
+    });
   });
-
   return ranking;
 }
 
@@ -918,10 +929,22 @@ function createAllRankingBlock(rankingKey, ranking) {
     ranking.forEach((record, index) => {
       const li = document.createElement("li");
 
+      if (
+        record.id === latestScoreDocId &&
+        rankingKey === latestRankingKey
+      ) {
+        li.classList.add("current-record");
+      }
+
       li.innerHTML = `
         <span class="rank-number">${index + 1}位</span>
         <span class="rank-name">${escapeHtml(record.name)}</span>
         <span class="rank-score">${record.score}点</span>
+        ${
+          record.id === latestScoreDocId && rankingKey === latestRankingKey
+            ? '<span class="rank-current-label">今回</span>'
+            : ""
+        }
       `;
 
       list.appendChild(li);
@@ -941,13 +964,27 @@ function renderRanking(ranking) {
     return;
   }
 
+  const currentRankingKey = getRankingKey();
+
   ranking.forEach((record, index) => {
     const li = document.createElement("li");
+
+    if (
+      record.id === latestScoreDocId &&
+      currentRankingKey === latestRankingKey
+    ) {
+      li.classList.add("current-record");
+    }
 
     li.innerHTML = `
       <span class="rank-number">${index + 1}位</span>
       <span class="rank-name">${escapeHtml(record.name)}</span>
       <span class="rank-score">${record.score}点</span>
+      ${
+        record.id === latestScoreDocId && currentRankingKey === latestRankingKey
+          ? '<span class="rank-current-label">今回</span>'
+          : ""
+      }
     `;
 
     rankingList.appendChild(li);

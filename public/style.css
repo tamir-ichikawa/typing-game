@@ -376,3 +376,22 @@ button:hover {
     font-size: 72px;
   }
 }
+
+.current-record {
+  padding: 6px 8px;
+  background: rgba(250, 204, 21, 0.22);
+  border: 2px solid rgba(250, 204, 21, 0.85);
+  border-radius: 10px;
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.35);
+}
+
+.rank-current-label {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #111827;
+  background: #fef3c7;
+  border-radius: 999px;
+}
