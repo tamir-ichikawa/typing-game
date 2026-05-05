@@ -4,6 +4,8 @@ const allRankingScreen = document.getElementById("all-ranking-screen");
 const difficultyScreen = document.getElementById("difficulty-screen");
 const gameScreen = document.getElementById("game-screen");
 
+const menuCharacter = document.getElementById("menu-character");
+
 const nameInput = document.getElementById("name-input");
 const nameSubmitButton = document.getElementById("name-submit-button");
 const firebaseStatusElement = document.getElementById("firebase-status");
@@ -347,6 +349,20 @@ function showScreen(screenName) {
 
   if (screenName === "game") {
     gameScreen.classList.remove("hidden");
+  }
+
+  updateMenuCharacterVisibility(screenName);
+}
+
+function updateMenuCharacterVisibility(screenName) {
+  if (!menuCharacter) {
+    return;
+  }
+
+  if (screenName === "game") {
+    menuCharacter.classList.add("hidden");
+  } else {
+    menuCharacter.classList.remove("hidden");
   }
 }
 
