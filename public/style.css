@@ -436,3 +436,7 @@ button:hover {
     transform: scale(1);
   }
 }
+
+#score {
+  display: inline-block;
+}
