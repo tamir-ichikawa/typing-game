@@ -14,6 +14,7 @@ const gameScreen = document.getElementById("game-screen");
 const menuCharacter = document.getElementById("menu-character");
 const gameCharacter = document.getElementById("game-character");
 const gameCharacterImg = document.getElementById("game-character-img");
+const gameCharacterSprite = document.getElementById("game-character-sprite");
 
 const nameInput = document.getElementById("name-input");
 const nameSubmitButton = document.getElementById("name-submit-button");
@@ -45,6 +46,7 @@ const levelTimeElement = document.getElementById("level-time");
 
 const rankingTitle = document.getElementById("ranking-title");
 const rankingList = document.getElementById("ranking-list");
+const rankingArea = document.getElementById("ranking-area");
 
 const allRankingButton = document.getElementById("all-ranking-button");
 const allRankingBackButton = document.getElementById("all-ranking-back-button");
@@ -681,6 +683,30 @@ function playCorrectAnimation() {
   }, 250);
 }
 
+function setCharacterState(stateName) {
+  if (!gameCharacterSprite) {
+    return;
+  }
+
+  gameCharacterSprite.classList.remove(
+    "character-idle",
+    "character-correct",
+    "character-finish"
+  );
+
+  if (stateName === "correct") {
+    gameCharacterSprite.classList.add("character-correct");
+    return;
+  }
+
+  if (stateName === "finish") {
+    gameCharacterSprite.classList.add("character-finish");
+    return;
+  }
+
+  gameCharacterSprite.classList.add("character-idle");
+}
+
 function playScoreAnimation() {
   scoreElement.classList.remove("score-pop-animation");
 
@@ -796,6 +822,8 @@ function beginGame() {
 
   playBgm(getGameBgmKey());
 
+  setCharacterState("idle");
+
   setNewText();
 
   timerId = setInterval(() => {
@@ -817,6 +845,17 @@ function beginGame() {
   }, 1000);
 }
 
+function scrollToRankingArea() {
+  if (!rankingArea) {
+    return;
+  }
+
+  rankingArea.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
 async function endGame() {
   if (!isPlaying) {
     return;
@@ -825,19 +864,34 @@ async function endGame() {
   isPlaying = false;
   resetTimer();
 
-  //SE
   playSound("finish");
   playBgm("bgmMenu");
 
   inputElement.disabled = true;
+  inputElement.blur();
+
   wordElement.textContent = "FINISH";
   messageElement.textContent = `ゲーム終了！ スコア：${score}`;
+
+  setCharacterState("finish");
+
+  startButton.disabled = true;
+  startButton.textContent = "RESULT";
+
+  // 終了スプライトを見せるために少し待つ
+  await sleep(1000);
+
+  messageElement.textContent = `ゲーム終了！ スコア：${score} / ランキング更新中...`;
+
+  await saveScoreToFirebase();
+  await loadRankingFromFirebase();
 
   startButton.disabled = false;
   startButton.textContent = "RESTART";
 
-  await saveScoreToFirebase();
-  await loadRankingFromFirebase();
+  // ランキング更新後、少し待ってから下へスクロール
+  await sleep(150);
+  scrollToRankingArea();
 }
 
 function updateChallengeTimer() {
@@ -915,6 +969,7 @@ function checkInput() {
   if (inputElement.value === currentText) {
     playSound("correct");
     playCorrectAnimation();
+    setCharacterState("correct");
 
     score++;
     scoreElement.textContent = score;
@@ -929,15 +984,21 @@ function checkInput() {
       }
     }
 
+    //setTimeout(() => {
+    //  setNewText();
+    //}, 160);
+
     setTimeout(() => {
       setNewText();
-    }, 160);
+      setCharacterState("idle");
+    }, 500);
   }
 }
 
 function returnToModeSelect() {
   cancelCountdown();
   prepareGame();
+  setCharacterState("idle");
   playBgm("bgmMenu");
   showScreen("mode");
 }

@@ -11,7 +11,7 @@ body {
   color: white;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .game-container {
@@ -189,6 +189,8 @@ button:hover {
   text-align: left;
   background: rgba(255, 255, 255, 0.12);
   border-radius: 18px;
+  scroll-margin-top: 24px;
+  overflow-anchor: none;
 }
 
 .ranking-area h2 {
@@ -520,30 +522,107 @@ button:hover {
   font-size: 14px;
 }
 
+
+/* =========================
+   ゲーム画面キャラ：スプライト設定
+   8コマ横並び
+   PC 1コマ：103.5px × 184px
+   スマホ 1コマ：72px × 128px
+========================= */
+
+/* PC用 */
 .game-character {
   position: absolute;
-  top: 18px;
+  top: 2px;
   left: 18px;
   z-index: 6;
-  width: 160px;
-  height: 160px;
+
+  width: 103.5px;
+  height: 184px;
+
   pointer-events: none;
+  overflow: hidden;
+
+  /* PC用スプライトシートサイズ */
+  --character-sheet-width: 828px;
+  --character-sheet-height: 184px;
+  --character-sheet-end: -828px;
+
+  /* 最後のコマ位置 */
+  --character-last-frame: -724.5px;
 }
 
-.game-character img {
+.game-character-sprite {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.4));
+
+  background-repeat: no-repeat;
+  background-size: var(--character-sheet-width) var(--character-sheet-height);
+
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
 }
 
+/* 状態ごとにアニメーション名を分ける */
+.character-idle {
+  background-image: url("./assets/images/character/game-idle-sheet.png");
+  animation: characterIdleMove 0.8s steps(8) infinite;
+}
+
+.character-correct {
+  background-image: url("./assets/images/character/game-correct-sheet.png");
+  animation: characterCorrectMove 0.5s steps(8) 1;
+}
+
+.character-finish {
+  background-image: url("./assets/images/character/game-finish-sheet.png");
+  animation: characterFinishMove 0.8s steps(7) 1 forwards;
+}
+
+@keyframes characterIdleMove {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: var(--character-sheet-end) 0;
+  }
+}
+
+@keyframes characterCorrectMove {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: var(--character-sheet-end) 0;
+  }
+}
+
+@keyframes characterFinishMove {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: var(--character-last-frame) 0;
+  }
+}
+
+/* スマホ用 */
 @media (max-width: 600px) {
   .game-character {
-    width: 128px;
+    width: 72px;
     height: 128px;
-    padding-left: 0px;
+
     top: 140px;
-    left: 1px;
+    left: 20px;
+
+    /* スマホ用スプライトシートサイズ */
+    --character-sheet-width: 576px;
+    --character-sheet-height: 128px;
+    --character-sheet-end: -576px;
+
+    /* 最後のコマ位置 */
+    --character-last-frame: -504px;
   }
 }
