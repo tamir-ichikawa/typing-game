@@ -611,6 +611,7 @@ function prepareGame() {
   wordElement.textContent = "START";
   inputElement.value = "";
   inputElement.disabled = true;
+  inputElement.readOnly = false;
   startButton.disabled = false;
   startButton.textContent = "START";
   messageElement.textContent = "";
@@ -864,6 +865,7 @@ function beginGame() {
   messageElement.textContent = "";
 
   inputElement.disabled = false;
+  inputElement.readOnly = false;
   //inputElement.focus();
   focusInputSafely();
 
@@ -917,8 +919,9 @@ async function endGame() {
   playSound("finish");
   playBgm("bgmMenu");
 
-  inputElement.disabled = true;
-  inputElement.blur();
+  // ここでは入力欄を消さない・フォーカスも外さない
+  // スマホで画面が急に動くのを防ぐため、まずは入力だけ止める
+  inputElement.readOnly = true;
 
   wordElement.textContent = "FINISH";
   messageElement.textContent = `ゲーム終了！ スコア：${score}`;
@@ -928,8 +931,13 @@ async function endGame() {
   startButton.disabled = true;
   startButton.textContent = "RESULT";
 
-  // 終了スプライトを見せるために少し待つ
+  // 終了スプライトを先に見せる
   await sleep(1000);
+
+  // ここで初めて入力欄を無効化・フォーカス解除する
+  inputElement.blur();
+  inputElement.disabled = true;
+  inputElement.readOnly = false;
 
   messageElement.textContent = `ゲーム終了！ スコア：${score} / ランキング更新中...`;
 
@@ -939,7 +947,6 @@ async function endGame() {
   startButton.disabled = false;
   startButton.textContent = "RESTART";
 
-  // ランキング更新後、少し待ってから下へスクロール
   await sleep(150);
   scrollToRankingArea();
 }
