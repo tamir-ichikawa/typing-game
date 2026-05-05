@@ -1,6 +1,11 @@
+const nameScreen = document.getElementById("name-screen");
 const modeScreen = document.getElementById("mode-screen");
 const difficultyScreen = document.getElementById("difficulty-screen");
 const gameScreen = document.getElementById("game-screen");
+
+const nameInput = document.getElementById("name-input");
+const nameSubmitButton = document.getElementById("name-submit-button");
+const firebaseStatusElement = document.getElementById("firebase-status");
 
 const modeTitleElement = document.getElementById("mode-title");
 const modeDescriptionElement = document.getElementById("mode-description");
@@ -16,11 +21,15 @@ const messageElement = document.getElementById("message");
 const backButton = document.getElementById("back-button");
 const modeSelectButton = document.getElementById("mode-select-button");
 const selectedModeLabel = document.getElementById("selected-mode-label");
+const playerLabel = document.getElementById("player-label");
 
 const challengeStatus = document.getElementById("challenge-status");
 const levelNameElement = document.getElementById("level-name");
 const levelScoreElement = document.getElementById("level-score");
 const levelTimeElement = document.getElementById("level-time");
+
+const rankingTitle = document.getElementById("ranking-title");
+const rankingList = document.getElementById("ranking-list");
 
 const CHALLENGE_TARGET = 5;
 const CHALLENGE_LIMIT_TIME = 10;
@@ -31,6 +40,16 @@ const LEVEL_LABELS = {
   easy: "EASY",
   normal: "NORMAL",
   hard: "HARD"
+};
+
+const RANKING_LABELS = {
+  normal_easy: "通常モード / easy",
+  normal_normal: "通常モード / normal",
+  normal_hard: "通常モード / hard",
+  challenge_challenge: "チャレンジモード",
+  food_easy: "早食いモード / 食べ物",
+  food_normal: "早食いモード / 和洋中華",
+  food_hard: "早食いモード / 世界グルメ"
 };
 
 const MODE_CONFIGS = {
@@ -105,6 +124,9 @@ const MODE_CONFIGS = {
   }
 };
 
+let db = null;
+let currentUser = null;
+
 let currentText = "";
 let score = 0;
 let time = 60;
@@ -112,18 +134,51 @@ let timerId = null;
 let isPlaying = false;
 let isComposing = false;
 
+let playerName = "";
 let selectedModeKey = "";
 let selectedDifficultyKey = "";
+let selectedDifficultyLabel = "";
 let selectedTextGroupKey = "";
 
 let challengeLevelIndex = 0;
 let challengeCorrectCount = 0;
 let challengeTimeLeft = CHALLENGE_LIMIT_TIME;
 
+function initFirebase() {
+  if (typeof firebase === "undefined") {
+    firebaseStatusElement.textContent = "Firebase SDKが読み込めていません";
+    return;
+  }
+
+  if (typeof firebaseConfig === "undefined") {
+    firebaseStatusElement.textContent = "firebase-config.jsが見つかりません";
+    return;
+  }
+
+  firebase.initializeApp(firebaseConfig);
+
+  db = firebase.firestore();
+
+  firebase.auth().signInAnonymously()
+    .then((result) => {
+      currentUser = result.user;
+      firebaseStatusElement.textContent = "Firebase接続OK";
+    })
+    .catch((error) => {
+      console.error(error);
+      firebaseStatusElement.textContent = "Firebase接続エラー";
+    });
+}
+
 function showScreen(screenName) {
+  nameScreen.classList.add("hidden");
   modeScreen.classList.add("hidden");
   difficultyScreen.classList.add("hidden");
   gameScreen.classList.add("hidden");
+
+  if (screenName === "name") {
+    nameScreen.classList.remove("hidden");
+  }
 
   if (screenName === "mode") {
     modeScreen.classList.remove("hidden");
@@ -135,6 +190,35 @@ function showScreen(screenName) {
 
   if (screenName === "game") {
     gameScreen.classList.remove("hidden");
+  }
+}
+
+function registerPlayerName() {
+  const inputName = nameInput.value.trim();
+
+  if (inputName.length === 0) {
+    firebaseStatusElement.textContent = "名前を入力してください";
+    return;
+  }
+
+  if (inputName.length > 12) {
+    firebaseStatusElement.textContent = "名前は12文字以内にしてください";
+    return;
+  }
+
+  playerName = inputName;
+  localStorage.setItem("typingGamePlayerName", playerName);
+
+  playerLabel.textContent = `PLAYER: ${playerName}`;
+
+  showScreen("mode");
+}
+
+function loadSavedPlayerName() {
+  const savedName = localStorage.getItem("typingGamePlayerName");
+
+  if (savedName) {
+    nameInput.value = savedName;
   }
 }
 
@@ -171,6 +255,7 @@ function selectDifficulty(difficulty) {
   const modeConfig = MODE_CONFIGS[selectedModeKey];
 
   selectedDifficultyKey = difficulty.key;
+  selectedDifficultyLabel = difficulty.label;
 
   if (modeConfig.type === "challenge") {
     selectedTextGroupKey = modeConfig.challengeGroups.easy;
@@ -182,6 +267,7 @@ function selectDifficulty(difficulty) {
 
   prepareGame();
   showScreen("game");
+  loadRankingFromFirebase();
 }
 
 function prepareGame() {
@@ -293,6 +379,10 @@ function startGame() {
   setNewText();
 
   timerId = setInterval(() => {
+    if (!isPlaying) {
+      return;
+    }
+
     time--;
     timeElement.textContent = time;
 
@@ -307,7 +397,11 @@ function startGame() {
   }, 1000);
 }
 
-function endGame() {
+async function endGame() {
+  if (!isPlaying) {
+    return;
+  }
+
   isPlaying = false;
   resetTimer();
 
@@ -317,6 +411,9 @@ function endGame() {
 
   startButton.disabled = false;
   startButton.textContent = "RESTART";
+
+  await saveScoreToFirebase();
+  await loadRankingFromFirebase();
 }
 
 function updateChallengeTimer() {
@@ -399,10 +496,121 @@ function returnToModeSelect() {
   showScreen("mode");
 }
 
+function getRankingKey() {
+  if (selectedModeKey === "challenge") {
+    return "challenge_challenge";
+  }
+
+  return `${selectedModeKey}_${selectedDifficultyKey}`;
+}
+
+async function saveScoreToFirebase() {
+  if (!db || !currentUser) {
+    messageElement.textContent = `ゲーム終了！ スコア：${score} / Firebase未接続のため保存できませんでした`;
+    return;
+  }
+
+  const rankingKey = getRankingKey();
+
+  try {
+    await db
+      .collection("rankings")
+      .doc(rankingKey)
+      .collection("scores")
+      .add({
+        name: playerName,
+        score: score,
+        mode: selectedModeKey,
+        difficulty: selectedDifficultyKey,
+        rankingKey: rankingKey,
+        uid: currentUser.uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+    messageElement.textContent = `ゲーム終了！ スコア：${score} / ランキングに保存しました`;
+  } catch (error) {
+    console.error(error);
+    messageElement.textContent = `ゲーム終了！ スコア：${score} / 保存エラー`;
+  }
+}
+
+async function loadRankingFromFirebase() {
+  if (!db) {
+    rankingTitle.textContent = "ランキング";
+    rankingList.innerHTML = "<li>Firebase未接続です</li>";
+    return;
+  }
+
+  const rankingKey = getRankingKey();
+  const rankingLabel = RANKING_LABELS[rankingKey] || "ランキング";
+
+  rankingTitle.textContent = `${rankingLabel} ランキング`;
+  rankingList.innerHTML = "<li>読み込み中...</li>";
+
+  try {
+    const snapshot = await db
+      .collection("rankings")
+      .doc(rankingKey)
+      .collection("scores")
+      .orderBy("score", "desc")
+      .limit(10)
+      .get();
+
+    const ranking = [];
+
+    snapshot.forEach((doc) => {
+      ranking.push(doc.data());
+    });
+
+    renderRanking(ranking);
+  } catch (error) {
+    console.error(error);
+    rankingList.innerHTML = "<li>ランキングの読み込みに失敗しました</li>";
+  }
+}
+
+function renderRanking(ranking) {
+  rankingList.innerHTML = "";
+
+  if (ranking.length === 0) {
+    rankingList.innerHTML = "<li>まだ記録がありません</li>";
+    return;
+  }
+
+  ranking.forEach((record, index) => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <span class="rank-number">${index + 1}位</span>
+      <span class="rank-name">${escapeHtml(record.name)}</span>
+      <span class="rank-score">${record.score}点</span>
+    `;
+
+    rankingList.appendChild(li);
+  });
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 document.querySelectorAll("[data-mode]").forEach((button) => {
   button.addEventListener("click", () => {
     showDifficultyScreen(button.dataset.mode);
   });
+});
+
+nameSubmitButton.addEventListener("click", registerPlayerName);
+
+nameInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    registerPlayerName();
+  }
 });
 
 backButton.addEventListener("click", () => {
@@ -423,3 +631,7 @@ inputElement.addEventListener("compositionend", () => {
 inputElement.addEventListener("input", checkInput);
 
 startButton.addEventListener("click", startGame);
+
+loadSavedPlayerName();
+initFirebase();
+showScreen("name");
