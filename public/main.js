@@ -19,6 +19,9 @@ const inputElement = document.getElementById("input");
 const startButton = document.getElementById("start-button");
 const messageElement = document.getElementById("message");
 
+const countdownOverlay = document.getElementById("countdown-overlay");
+const countdownText = document.getElementById("countdown-text");
+
 const backButton = document.getElementById("back-button");
 const modeSelectButton = document.getElementById("mode-select-button");
 const selectedModeLabel = document.getElementById("selected-mode-label");
@@ -233,6 +236,8 @@ let time = 60;
 let timerId = null;
 let isPlaying = false;
 let isComposing = false;
+let isCountingDown = false;
+let countdownToken = 0;
 
 let playerName = "";
 let selectedModeKey = "";
@@ -467,19 +472,98 @@ function setNewText() {
   inputElement.value = "";
 }
 
-function startGame() {
-  //SE
-  playSound("start");
-  startBgm();
-  
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function runCountdown(myToken) {
+  const countdownItems = ["3", "2", "1", "GO!"];
+
+  countdownOverlay.classList.remove("hidden");
+
+  for (const item of countdownItems) {
+    if (myToken !== countdownToken) {
+      countdownOverlay.classList.add("hidden");
+      return false;
+    }
+
+    countdownText.textContent = item;
+
+    countdownText.classList.remove("countdown-pop");
+    void countdownText.offsetWidth;
+    countdownText.classList.add("countdown-pop");
+
+    if (item === "GO!") {
+      playSound("start");
+      await sleep(500);
+    } else {
+      playSound("button");
+      await sleep(700);
+    }
+  }
+
+  countdownOverlay.classList.add("hidden");
+  countdownText.classList.remove("countdown-pop");
+
+  return true;
+}
+
+function cancelCountdown() {
+  countdownToken++;
+  isCountingDown = false;
+
+  if (countdownOverlay) {
+    countdownOverlay.classList.add("hidden");
+  }
+}
+
+async function startGame() {
+  if (isPlaying || isCountingDown) {
+    return;
+  }
+
   resetTimer();
 
   score = 0;
   time = 60;
-  isPlaying = true;
+  isPlaying = false;
+  isCountingDown = true;
 
   scoreElement.textContent = score;
   timeElement.textContent = time;
+  messageElement.textContent = "準備中...";
+
+  inputElement.disabled = true;
+  inputElement.value = "";
+
+  startButton.disabled = true;
+  startButton.textContent = "READY";
+
+  if (isChallengeMode()) {
+    challengeLevelIndex = 0;
+    challengeCorrectCount = 0;
+    challengeTimeLeft = CHALLENGE_LIMIT_TIME;
+    updateChallengeStatus();
+  }
+
+  countdownToken++;
+  const myToken = countdownToken;
+
+  const completed = await runCountdown(myToken);
+
+  if (!completed) {
+    return;
+  }
+
+  isCountingDown = false;
+  beginGame();
+}
+
+function beginGame() {
+  isPlaying = true;
+
   messageElement.textContent = "";
 
   inputElement.disabled = false;
@@ -488,12 +572,7 @@ function startGame() {
   startButton.disabled = true;
   startButton.textContent = "PLAYING";
 
-  if (isChallengeMode()) {
-    challengeLevelIndex = 0;
-    challengeCorrectCount = 0;
-    challengeTimeLeft = CHALLENGE_LIMIT_TIME;
-    updateChallengeStatus();
-  }
+  startBgm();
 
   setNewText();
 

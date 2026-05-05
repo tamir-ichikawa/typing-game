@@ -321,3 +321,58 @@ button:hover {
 .ranking-block .rank-score {
   font-weight: bold;
 }
+
+.game-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(4px);
+  border-radius: 24px;
+}
+
+.countdown-overlay.hidden {
+  display: none;
+}
+
+.countdown-text {
+  font-size: 96px;
+  font-weight: bold;
+  color: #fef3c7;
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.7);
+}
+
+.countdown-pop {
+  animation: countdownPop 0.55s ease-out;
+}
+
+@keyframes countdownPop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .countdown-text {
+    font-size: 72px;
+  }
+}
