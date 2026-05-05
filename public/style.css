@@ -448,8 +448,8 @@ button:hover {
   top: 18px;
   left: 18px;
   z-index: 5;
-  width: 92px;
-  height: 92px;
+  width: 184px;
+  height: 184px;
   pointer-events: none;
 }
 
@@ -465,7 +465,7 @@ button:hover {
   .menu-character {
     width: 64px;
     height: 64px;
-    top: 12px;
+    top: 128px;
     left: 12px;
   }
 }
