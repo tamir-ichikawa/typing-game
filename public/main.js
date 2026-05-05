@@ -1047,6 +1047,9 @@ function checkInput() {
 
     setTimeout(() => {
       setNewText();
+    }, 180);
+
+    setTimeout(() => {
       setCharacterState("idle");
     }, 500);
   }
