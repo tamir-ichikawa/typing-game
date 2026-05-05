@@ -517,6 +517,25 @@ function setNewText() {
   wordElement.textContent = currentText;
   adjustWordSize(currentText);
   inputElement.value = "";
+
+  wordElement.classList.remove("word-correct-animation");
+}
+
+function playCorrectAnimation() {
+  wordElement.classList.remove("word-correct-animation");
+  scoreElement.classList.remove("score-pop-animation");
+
+  // アニメーションを連続で発火させるためのおまじない
+  void wordElement.offsetWidth;
+  void scoreElement.offsetWidth;
+
+  wordElement.classList.add("word-correct-animation");
+  scoreElement.classList.add("score-pop-animation");
+
+  setTimeout(() => {
+    wordElement.classList.remove("word-correct-animation");
+    scoreElement.classList.remove("score-pop-animation");
+  }, 250);
 }
 
 function sleep(ms) {
@@ -738,8 +757,8 @@ function checkInput() {
   }
 
   if (inputElement.value === currentText) {
-    //SE
     playSound("correct");
+    playCorrectAnimation();
 
     score++;
     scoreElement.textContent = score;
@@ -752,9 +771,10 @@ function checkInput() {
         changeChallengeLevel(1);
       }
     }
-    
 
-    setNewText();
+    setTimeout(() => {
+      setNewText();
+    }, 160);
   }
 }
 

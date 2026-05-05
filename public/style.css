@@ -111,6 +111,7 @@ h2 {
 
 #word {
   margin: 0;
+  display: inline-block;
   font-size: 38px;
   font-weight: bold;
   letter-spacing: 1px;
@@ -394,4 +395,44 @@ button:hover {
   color: #111827;
   background: #fef3c7;
   border-radius: 999px;
+}
+
+.word-correct-animation {
+  animation: wordCorrectPop 0.22s ease-out;
+}
+
+.score-pop-animation {
+  animation: scorePop 0.22s ease-out;
+}
+
+@keyframes wordCorrectPop {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  45% {
+    transform: scale(1.18);
+    opacity: 1;
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.75);
+  }
+
+  100% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes scorePop {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.35);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
