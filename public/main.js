@@ -176,6 +176,18 @@ const PRELOAD_IMAGES = [
     label: "メニューキャラクター",
     src: "./assets/images/character/menu-character.png",
     element: menuCharacterImg
+  },
+  {
+    label: "待機スプライト",
+    src: "./assets/images/character/game-idle-sheet.png"
+  },
+  {
+    label: "正解スプライト",
+    src: "./assets/images/character/game-correct-sheet.png"
+  },
+  {
+    label: "終了スプライト",
+    src: "./assets/images/character/game-finish-sheet.png"
   }
 ];
 
@@ -198,22 +210,27 @@ function updateLoadingProgress(loadedCount, totalCount, detailText) {
 }
 
 async function preloadImage(asset) {
-  const response = await fetch(asset.src);
+  return new Promise((resolve, reject) => {
+    const image = new Image();
 
-  if (!response.ok) {
-    throw new Error(`${asset.src} が読み込めません`);
-  }
+    image.onload = async () => {
+      if (asset.element) {
+        asset.element.src = asset.src;
 
-  const blob = await response.blob();
-  const objectUrl = URL.createObjectURL(blob);
+        if (asset.element.decode) {
+          await asset.element.decode().catch(() => {});
+        }
+      }
 
-  if (asset.element) {
-    asset.element.src = objectUrl;
+      resolve();
+    };
 
-    if (asset.element.decode) {
-      await asset.element.decode().catch(() => {});
-    }
-  }
+    image.onerror = () => {
+      reject(new Error(`${asset.src} が読み込めません`));
+    };
+
+    image.src = asset.src;
+  });
 }
 
 async function preloadAudioByKey(soundKey) {
@@ -1381,6 +1398,7 @@ async function bootGame() {
 
     loadSavedPlayerName();
     updateSoundButtonLabels();
+    setCharacterState("idle");
     showScreen("name");
   } catch (error) {
     console.error(error);
