@@ -476,6 +476,47 @@ button:hover {
   }
 }
 
+.loading-logo-area {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.loading-logo {
+  width: 140px;
+  height: auto;
+  display: block;
+  margin: 0 auto 12px;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+}
+
+.loading-brand-name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #fef3c7;
+}
+
+.loading-title {
+  margin-top: 0;
+  font-size: 32px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 600px) {
+  .loading-logo {
+    width: 110px;
+  }
+
+  .loading-brand-name {
+    font-size: 18px;
+  }
+
+  .loading-title {
+    font-size: 26px;
+  }
+}
+
 .loading-screen {
   width: 90%;
   max-width: 760px;

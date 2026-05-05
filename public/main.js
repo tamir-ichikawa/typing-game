@@ -1385,10 +1385,14 @@ async function bootGame() {
     app.classList.add("hidden");
     loadingScreen.classList.remove("hidden");
 
+    const minimumLoadingTime = sleep(1500);
+
     await preloadAssets();
 
     loadingDetail.textContent = "Firebaseに接続中...";
     await initFirebase();
+
+    await minimumLoadingTime;
 
     loadingBarFill.style.width = "100%";
     loadingPercent.textContent = "100%";
