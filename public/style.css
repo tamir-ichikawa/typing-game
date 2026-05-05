@@ -439,4 +439,6 @@ button:hover {
 
 #score {
   display: inline-block;
+  transform-origin: center center;
+  will-change: transform;
 }
