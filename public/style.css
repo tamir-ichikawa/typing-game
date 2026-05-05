@@ -469,7 +469,7 @@ button:hover {
     width: 100px;
     height: 100px;
     padding-right: 45px;
-    top: 10;
+    top: 10px;
     left: 12px;
   }
 }
@@ -520,3 +520,30 @@ button:hover {
   font-size: 14px;
 }
 
+.game-character {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 6;
+  width: 160px;
+  height: 160px;
+  pointer-events: none;
+}
+
+.game-character img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.4));
+}
+
+@media (max-width: 600px) {
+  .game-character {
+    width: 128px;
+    height: 128px;
+    padding-left: 0px;
+    top: 140px;
+    left: 1px;
+  }
+}

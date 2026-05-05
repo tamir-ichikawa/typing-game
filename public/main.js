@@ -12,6 +12,8 @@ const difficultyScreen = document.getElementById("difficulty-screen");
 const gameScreen = document.getElementById("game-screen");
 
 const menuCharacter = document.getElementById("menu-character");
+const gameCharacter = document.getElementById("game-character");
+const gameCharacterImg = document.getElementById("game-character-img");
 
 const nameInput = document.getElementById("name-input");
 const nameSubmitButton = document.getElementById("name-submit-button");
@@ -464,6 +466,7 @@ function showScreen(screenName) {
   }
 
   updateMenuCharacterVisibility(screenName);
+  updateGameCharacterVisibility(screenName);
 }
 
 function updateMenuCharacterVisibility(screenName) {
@@ -475,6 +478,18 @@ function updateMenuCharacterVisibility(screenName) {
     menuCharacter.classList.add("hidden");
   } else {
     menuCharacter.classList.remove("hidden");
+  }
+}
+
+function updateGameCharacterVisibility(screenName) {
+  if (!gameCharacter) {
+    return;
+  }
+
+  if (screenName === "game") {
+    gameCharacter.classList.remove("hidden");
+  } else {
+    gameCharacter.classList.add("hidden");
   }
 }
 
