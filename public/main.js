@@ -124,6 +124,73 @@ const MODE_CONFIGS = {
   }
 };
 
+const sounds = {
+  bgm: new Audio("./assets/audio/bgm.mp3"),
+  correct: new Audio("./assets/audio/correct.mp3"),
+  start: new Audio("./assets/audio/start.mp3"),
+  finish: new Audio("./assets/audio/finish.mp3"),
+  levelUp: new Audio("./assets/audio/level-up.mp3"),
+  levelDown: new Audio("./assets/audio/level-down.mp3"),
+  button: new Audio("./assets/audio/button.mp3")
+};
+
+let isSoundEnabled = true;
+let isBgmStarted = false;
+
+function setupSounds() {
+  sounds.bgm.loop = true;
+  sounds.bgm.volume = 0.25;
+
+  sounds.correct.volume = 0.6;
+  sounds.start.volume = 0.6;
+  sounds.finish.volume = 0.7;
+  sounds.levelUp.volume = 0.7;
+  sounds.levelDown.volume = 0.7;
+  sounds.button.volume = 0.4;
+}
+
+function playSound(soundName) {
+  if (!isSoundEnabled) {
+    return;
+  }
+
+  const sound = sounds[soundName];
+
+  if (!sound) {
+    return;
+  }
+
+  sound.currentTime = 0;
+
+  sound.play().catch(() => {
+    // ブラウザ側で再生が止められた場合は何もしない
+  });
+}
+
+function startBgm() {
+  if (!isSoundEnabled) {
+    return;
+  }
+
+  if (isBgmStarted) {
+    return;
+  }
+
+  isBgmStarted = true;
+
+  sounds.bgm.play().catch(() => {
+    isBgmStarted = false;
+  });
+}
+
+function stopBgm() {
+  sounds.bgm.pause();
+  sounds.bgm.currentTime = 0;
+  isBgmStarted = false;
+}
+
+setupSounds();
+
 let db = null;
 let currentUser = null;
 
@@ -210,7 +277,11 @@ function registerPlayerName() {
   localStorage.setItem("typingGamePlayerName", playerName);
 
   playerLabel.textContent = `PLAYER: ${playerName}`;
-
+  
+  //SE
+  playSound("button");
+  startBgm();
+  
   showScreen("mode");
 }
 
@@ -223,6 +294,9 @@ function loadSavedPlayerName() {
 }
 
 function showDifficultyScreen(modeKey) {
+  //SE
+  playSound("button");
+
   selectedModeKey = modeKey;
 
   const modeConfig = MODE_CONFIGS[modeKey];
@@ -252,6 +326,9 @@ function showDifficultyScreen(modeKey) {
 }
 
 function selectDifficulty(difficulty) {
+  //SE
+  playSound("button");
+
   const modeConfig = MODE_CONFIGS[selectedModeKey];
 
   selectedDifficultyKey = difficulty.key;
@@ -353,6 +430,10 @@ function setNewText() {
 }
 
 function startGame() {
+  //SE
+  playSound("start");
+  startBgm();
+  
   resetTimer();
 
   score = 0;
@@ -404,6 +485,9 @@ async function endGame() {
 
   isPlaying = false;
   resetTimer();
+
+  //SE
+  playSound("finish");
 
   inputElement.disabled = true;
   wordElement.textContent = "FINISH";
@@ -475,6 +559,9 @@ function checkInput() {
   }
 
   if (inputElement.value === currentText) {
+    //SE
+    playSound("correct");
+
     score++;
     scoreElement.textContent = score;
 
@@ -486,6 +573,7 @@ function checkInput() {
         changeChallengeLevel(1);
       }
     }
+    
 
     setNewText();
   }
