@@ -225,50 +225,7 @@ button:hover {
   font-weight: bold;
 }
 
-@media (max-width: 600px) {
-  .game-container {
-    padding: 24px 18px;
-  }
 
-  h1 {
-    font-size: 26px;
-    text-align: right;
-    padding-left: 128px;
-    line-height: 1.25;
-  }
-
-  h2 {
-    font-size: 24px;
-  }
-
-  .status-area {
-    flex-direction: column;
-    gap: 8px;
-    font-size: 20px;
-  }
-
-  #word {
-    font-size: 28px;
-  }
-
-  #input,
-  #name-input {
-    font-size: 20px;
-  }
-
-  button,
-  .menu-button {
-    font-size: 18px;
-  }
-
-  .rank-name {
-    min-width: 80px;
-  }
-
-  .ranking-block .rank-name {
-    min-width: 80px;
-  }
-}
 
 
 .sub-menu-buttons {
@@ -465,10 +422,55 @@ button:hover {
 }
 
 @media (max-width: 600px) {
+  .game-container {
+    padding: 24px 18px;
+  }
+
+  h1 {
+    font-size: 26px;
+    text-align: right;
+    padding-left: 64px;
+    line-height: 1.25;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  .status-area {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 20px;
+  }
+
+  #word {
+    font-size: 28px;
+  }
+
+  #input,
+  #name-input {
+    font-size: 20px;
+  }
+
+  button,
+  .menu-button {
+    font-size: 18px;
+  }
+
+  .rank-name {
+    min-width: 80px;
+  }
+
+  .ranking-block .rank-name {
+    min-width: 80px;
+  }
+
   .menu-character {
     width: 128px;
     height: 128px;
     top: 12px;
-    left: 12px;
+    left: 2px;
   }
 }
+}
+
