@@ -14,21 +14,6 @@ body {
   align-items: center;
 }
 
-/* 古い .game-container 設定
-
-.game-container {
-  width: 90%;
-  max-width: 560px;
-  padding: 32px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-}
-
-*/
-
-/* 新しい .game-container 設定 */
 .game-container {
   width: 90%;
   max-width: 760px;
@@ -89,7 +74,7 @@ h2 {
 
 .mode-label {
   display: inline-block;
-  margin-bottom: 16px;
+  margin: 0 4px 12px;
   padding: 8px 18px;
   font-size: 15px;
   font-weight: bold;
@@ -135,7 +120,8 @@ h2 {
   word-break: break-word;
 }
 
-#input {
+#input,
+#name-input {
   width: 100%;
   padding: 16px;
   font-size: 24px;
@@ -185,7 +171,56 @@ button:hover {
 #message {
   min-height: 28px;
   margin-top: 24px;
-  font-size: 22px;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.5;
+}
+
+.small-message {
+  margin-top: 18px;
+  color: #dbeafe;
+  font-size: 14px;
+}
+
+.ranking-area {
+  margin-top: 32px;
+  padding: 20px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+}
+
+.ranking-area h2 {
+  margin-top: 0;
+  text-align: center;
+  font-size: 24px;
+}
+
+#ranking-list {
+  margin-bottom: 0;
+  padding-left: 24px;
+  line-height: 1.9;
+  font-size: 18px;
+}
+
+#ranking-list li {
+  margin-bottom: 6px;
+}
+
+.rank-number {
+  display: inline-block;
+  min-width: 48px;
+  font-weight: bold;
+  color: #fef3c7;
+}
+
+.rank-name {
+  display: inline-block;
+  min-width: 120px;
+  font-weight: bold;
+}
+
+.rank-score {
   font-weight: bold;
 }
 
@@ -212,12 +247,17 @@ button:hover {
     font-size: 28px;
   }
 
-  #input {
+  #input,
+  #name-input {
     font-size: 20px;
   }
 
   button,
   .menu-button {
     font-size: 18px;
+  }
+
+  .rank-name {
+    min-width: 80px;
   }
 }

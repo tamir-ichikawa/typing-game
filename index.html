@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Typing Game</title>
+
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -11,8 +13,26 @@
   <main class="game-container">
     <h1>Typing Game</h1>
 
+    <!-- 名前登録画面 -->
+    <section id="name-screen" class="screen">
+      <h2>プレイヤー登録</h2>
+      <p class="screen-description">ランキングに表示する名前を入力してください。</p>
+
+      <input
+        id="name-input"
+        type="text"
+        placeholder="名前を入力"
+        maxlength="12"
+        autocomplete="off"
+      />
+
+      <button id="name-submit-button">登録して進む</button>
+
+      <p id="firebase-status" class="small-message">Firebase接続準備中...</p>
+    </section>
+
     <!-- モード選択画面 -->
-    <section id="mode-screen" class="screen">
+    <section id="mode-screen" class="screen hidden">
       <h2>モード選択</h2>
       <p class="screen-description">遊びたいモードを選んでください。</p>
 
@@ -46,6 +66,7 @@
 
     <!-- ゲーム画面 -->
     <section id="game-screen" class="screen hidden">
+      <div id="player-label" class="mode-label">PLAYER</div>
       <div id="selected-mode-label" class="mode-label">MODE</div>
 
       <div class="status-area">
@@ -77,10 +98,21 @@
       </div>
 
       <p id="message"></p>
+
+      <div id="ranking-area" class="ranking-area">
+        <h2 id="ranking-title">ランキング</h2>
+        <ol id="ranking-list"></ol>
+      </div>
     </section>
   </main>
 
-  <script src="./texts.js?v=2"></script>
-  <script src="./main.js?v=3"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script src="./firebase-config.js?v=1"></script>
+  <script src="./texts.js?v=3"></script>
+  <script src="./main.js?v=5"></script>
 </body>
 </html>

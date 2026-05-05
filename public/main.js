@@ -553,6 +553,7 @@ async function loadRankingFromFirebase() {
       .doc(rankingKey)
       .collection("scores")
       .orderBy("score", "desc")
+      //ランキング表示数
       .limit(10)
       .get();
 
