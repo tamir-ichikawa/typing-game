@@ -231,7 +231,10 @@ button:hover {
   }
 
   h1 {
-    font-size: 32px;
+    font-size: 26px;
+    text-align: right;
+    padding-left: 128px;
+    line-height: 1.25;
   }
 
   h2 {
@@ -463,9 +466,9 @@ button:hover {
 
 @media (max-width: 600px) {
   .menu-character {
-    width: 64px;
-    height: 64px;
-    top: 140px;
+    width: 128px;
+    height: 128px;
+    top: 12px;
     left: 12px;
   }
 }
