@@ -79,7 +79,7 @@ const RANKING_LABELS = {
 const MODE_CONFIGS = {
   normal: {
     title: "通常モード",
-    description: "選んだ難易度の単語だけが出題されるよ！",
+    description: "一定の難易度でプレイ！",
     type: "fixed",
     difficulties: [
       {
@@ -105,7 +105,7 @@ const MODE_CONFIGS = {
 
   challenge: {
     title: "チャレンジモード",
-    description: "10秒以内に5単語正解で難易度アップし、失敗すると難易度ダウンするよ！",
+    description: "難易度が変化するよ！",
     type: "challenge",
     challengeGroups: {
       easy: "normalEasy",
@@ -544,7 +544,7 @@ function registerPlayerName() {
   playerName = inputName;
   localStorage.setItem("typingGamePlayerName", playerName);
 
-  playerLabel.textContent = `PLAYER: ${playerName}`;
+  playerLabel.textContent = `プレイヤー: ${playerName}`;
   
   //SE
   playSound("button");
