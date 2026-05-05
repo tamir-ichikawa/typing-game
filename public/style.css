@@ -428,8 +428,8 @@ button:hover {
 
   h1 {
     font-size: 26px;
-    text-align: right;
-    padding-left: 64px;
+    text-align: center;
+    padding-left: 0;
     line-height: 1.25;
   }
 
@@ -466,10 +466,10 @@ button:hover {
   }
 
   .menu-character {
-    width: 84px;
-    height: 84px;
-    padding-right: 20px;
-    top: 12px;
+    width: 100px;
+    height: 100px;
+    padding-right: 45px;
+    top: 10;
     left: 12px;
   }
 }
