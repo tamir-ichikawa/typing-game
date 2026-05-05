@@ -171,6 +171,9 @@ const BGM_KEYS = [
   "bgmFood"
 ];
 
+const DEFAULT_BGM_VOLUME = 0.25;
+let bgmFadeTimer = null;
+
 const PRELOAD_IMAGES = [
   {
     label: "メニューキャラクター",
@@ -319,7 +322,7 @@ let requestedBgmKey = "bgmMenu";
 function setupSounds() {
   for (const bgmKey of BGM_KEYS) {
     sounds[bgmKey].loop = true;
-    sounds[bgmKey].volume = 0.25;
+    sounds[bgmKey].volume = DEFAULT_BGM_VOLUME;
   }
 
   sounds.correct.volume = 0.6;
@@ -355,11 +358,15 @@ function playBgm(bgmKey) {
     return;
   }
 
+  cancelBgmFade();
+
   const nextBgm = sounds[bgmKey];
 
   if (!nextBgm) {
     return;
   }
+
+  nextBgm.volume = DEFAULT_BGM_VOLUME;
 
   if (currentBgmKey === bgmKey && !nextBgm.paused) {
     return;
@@ -369,13 +376,60 @@ function playBgm(bgmKey) {
 
   currentBgmKey = bgmKey;
   nextBgm.currentTime = 0;
-
   nextBgm.play().catch(() => {
     currentBgmKey = "";
   });
 }
 
+function cancelBgmFade() {
+  if (bgmFadeTimer !== null) {
+    clearInterval(bgmFadeTimer);
+    bgmFadeTimer = null;
+  }
+}
+
+function fadeOutCurrentBgm(duration = 1000) {
+  if (!currentBgmKey) {
+    return;
+  }
+
+  const currentBgm = sounds[currentBgmKey];
+
+  if (!currentBgm || currentBgm.paused) {
+    return;
+  }
+
+  cancelBgmFade();
+
+  const startVolume = currentBgm.volume;
+  const intervalTime = 50;
+  const steps = duration / intervalTime;
+  let currentStep = 0;
+
+  bgmFadeTimer = setInterval(() => {
+    currentStep++;
+
+    const nextVolume = startVolume * (1 - currentStep / steps);
+    currentBgm.volume = Math.max(0, nextVolume);
+
+    if (currentStep >= steps) {
+      clearInterval(bgmFadeTimer);
+      bgmFadeTimer = null;
+
+      currentBgm.pause();
+      currentBgm.currentTime = 0;
+      currentBgm.volume = DEFAULT_BGM_VOLUME;
+
+      if (sounds[currentBgmKey] === currentBgm) {
+        currentBgmKey = "";
+      }
+    }
+  }, intervalTime);
+}
+
 function stopCurrentBgm() {
+  cancelBgmFade();
+
   if (!currentBgmKey) {
     return;
   }
@@ -385,6 +439,7 @@ function stopCurrentBgm() {
   if (currentBgm) {
     currentBgm.pause();
     currentBgm.currentTime = 0;
+    currentBgm.volume = DEFAULT_BGM_VOLUME;
   }
 
   currentBgmKey = "";
@@ -835,6 +890,8 @@ async function startGame() {
 
   countdownToken++;
   const myToken = countdownToken;
+
+  fadeOutCurrentBgm(1000);
 
   const completed = await runCountdown(myToken);
 
