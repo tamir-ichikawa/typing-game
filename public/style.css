@@ -260,4 +260,64 @@ button:hover {
   .rank-name {
     min-width: 80px;
   }
+
+  .ranking-block .rank-name {
+    min-width: 80px;
+  }
+}
+
+
+.sub-menu-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.all-ranking-list {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.ranking-block {
+  padding: 18px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+}
+
+.ranking-block h3 {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 20px;
+  color: #fef3c7;
+}
+
+.ranking-block ol {
+  margin: 0;
+  padding-left: 24px;
+  line-height: 1.8;
+}
+
+.ranking-block li {
+  margin-bottom: 4px;
+}
+
+.ranking-block .rank-number {
+  display: inline-block;
+  min-width: 48px;
+  font-weight: bold;
+  color: #fef3c7;
+}
+
+.ranking-block .rank-name {
+  display: inline-block;
+  min-width: 120px;
+  font-weight: bold;
+}
+
+.ranking-block .rank-score {
+  font-weight: bold;
 }

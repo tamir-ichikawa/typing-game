@@ -52,7 +52,30 @@
           <span>食べ物・料理名だけで勝負</span>
         </button>
       </div>
+
+      <div class="sub-menu-buttons">
+        <button id="all-ranking-button" class="secondary-button">
+          全ランキングを見る
+        </button>
+
+        <button id="mode-sound-toggle-button" class="secondary-button">
+          SOUND ON
+        </button>
+      </div>
     </section>
+
+    <!-- 全ランキング画面 -->
+    <section id="all-ranking-screen" class="screen hidden">
+      <h2>全ランキング</h2>
+      <p class="screen-description">モード・難易度ごとのランキングを表示します。</p>
+
+      <div id="all-ranking-list" class="all-ranking-list">
+        <p>読み込み中...</p>
+      </div>
+
+      <button id="all-ranking-back-button" class="secondary-button">Back</button>
+    </section>
+
 
     <!-- 難易度選択画面 -->
     <section id="difficulty-screen" class="screen hidden">

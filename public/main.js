@@ -1,5 +1,6 @@
 const nameScreen = document.getElementById("name-screen");
 const modeScreen = document.getElementById("mode-screen");
+const allRankingScreen = document.getElementById("all-ranking-screen");
 const difficultyScreen = document.getElementById("difficulty-screen");
 const gameScreen = document.getElementById("game-screen");
 
