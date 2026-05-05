@@ -482,7 +482,7 @@ button:hover {
 }
 
 .loading-logo {
-  width: 140px;
+  width: 256px;
   height: auto;
   display: block;
   margin: 0 auto 12px;
@@ -505,7 +505,7 @@ button:hover {
 
 @media (max-width: 600px) {
   .loading-logo {
-    width: 110px;
+    width: 160px;
   }
 
   .loading-brand-name {
