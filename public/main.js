@@ -136,7 +136,12 @@ const MODE_CONFIGS = {
 };
 
 const sounds = {
-  bgm: new Audio("./assets/audio/bgm.mp3"),
+  bgmMenu: new Audio("./assets/audio/menu-bgm.mp3"),
+  bgmNormal: new Audio("./assets/audio/normal-bgm.mp3"),
+  bgmChallenge: new Audio("./assets/audio/challenge-bgm.mp3"),
+  bgmChallengeHard: new Audio("./assets/audio/challenge-hard-bgm.mp3"),
+  bgmFood: new Audio("./assets/audio/food-bgm.mp3"),
+
   correct: new Audio("./assets/audio/correct.mp3"),
   start: new Audio("./assets/audio/start.mp3"),
   finish: new Audio("./assets/audio/finish.mp3"),
@@ -144,6 +149,14 @@ const sounds = {
   levelDown: new Audio("./assets/audio/level-down.mp3"),
   button: new Audio("./assets/audio/button.mp3")
 };
+
+const BGM_KEYS = [
+  "bgmMenu",
+  "bgmNormal",
+  "bgmChallenge",
+  "bgmChallengeHard",
+  "bgmFood"
+];
 
 function updateSoundButtonLabels() {
   const label = isSoundEnabled ? "SOUND ON" : "SOUND OFF";
@@ -161,9 +174,9 @@ function toggleSound() {
   isSoundEnabled = !isSoundEnabled;
 
   if (isSoundEnabled) {
-    startBgm();
+    playBgm(requestedBgmKey);
   } else {
-    stopBgm();
+    stopCurrentBgm();
   }
 
   updateSoundButtonLabels();
@@ -171,11 +184,14 @@ function toggleSound() {
 
 
 let isSoundEnabled = true;
-let isBgmStarted = false;
+let currentBgmKey = "";
+let requestedBgmKey = "bgmMenu";
 
 function setupSounds() {
-  sounds.bgm.loop = true;
-  sounds.bgm.volume = 0.25;
+  for (const bgmKey of BGM_KEYS) {
+    sounds[bgmKey].loop = true;
+    sounds[bgmKey].volume = 0.25;
+  }
 
   sounds.correct.volume = 0.6;
   sounds.start.volume = 0.6;
@@ -203,26 +219,54 @@ function playSound(soundName) {
   });
 }
 
-function startBgm() {
+function playBgm(bgmKey) {
+  requestedBgmKey = bgmKey;
+
   if (!isSoundEnabled) {
     return;
   }
 
-  if (isBgmStarted) {
+  const nextBgm = sounds[bgmKey];
+
+  if (!nextBgm) {
     return;
   }
 
-  isBgmStarted = true;
+  if (currentBgmKey === bgmKey && !nextBgm.paused) {
+    return;
+  }
 
-  sounds.bgm.play().catch(() => {
-    isBgmStarted = false;
+  stopCurrentBgm();
+
+  currentBgmKey = bgmKey;
+  nextBgm.currentTime = 0;
+
+  nextBgm.play().catch(() => {
+    currentBgmKey = "";
   });
 }
 
+function stopCurrentBgm() {
+  if (!currentBgmKey) {
+    return;
+  }
+
+  const currentBgm = sounds[currentBgmKey];
+
+  if (currentBgm) {
+    currentBgm.pause();
+    currentBgm.currentTime = 0;
+  }
+
+  currentBgmKey = "";
+}
+
 function stopBgm() {
-  sounds.bgm.pause();
-  sounds.bgm.currentTime = 0;
-  isBgmStarted = false;
+  stopCurrentBgm();
+}
+
+function startBgm() {
+  playBgm(requestedBgmKey);
 }
 
 setupSounds();
@@ -323,7 +367,7 @@ function registerPlayerName() {
   
   //SE
   playSound("button");
-  startBgm();
+  playBgm("bgmMenu");
   
   showScreen("mode");
 }
@@ -572,7 +616,7 @@ function beginGame() {
   startButton.disabled = true;
   startButton.textContent = "PLAYING";
 
-  startBgm();
+  playBgm(getGameBgmKey());
 
   setNewText();
 
@@ -605,7 +649,8 @@ async function endGame() {
 
   //SE
   playSound("finish");
-
+  playBgm("bgmMenu");
+  
   inputElement.disabled = true;
   wordElement.textContent = "FINISH";
   messageElement.textContent = `ゲーム終了！ スコア：${score}`;
@@ -665,6 +710,10 @@ function changeChallengeLevel(direction) {
     messageElement.textContent = `${currentLevelName} キープ！`;
   }
 
+  if (isPlaying && isChallengeMode()) {
+   playBgm(getGameBgmKey());
+  }
+
   updateChallengeStatus();
 }
 
@@ -707,7 +756,9 @@ function checkInput() {
 }
 
 function returnToModeSelect() {
+  cancelCountdown();
   prepareGame();
+  playBgm("bgmMenu");
   showScreen("mode");
 }
 
@@ -717,6 +768,28 @@ function getRankingKey() {
   }
 
   return `${selectedModeKey}_${selectedDifficultyKey}`;
+}
+
+function getGameBgmKey() {
+  if (selectedModeKey === "normal") {
+    return "bgmNormal";
+  }
+
+  if (selectedModeKey === "challenge") {
+    const levelKey = LEVEL_ORDER[challengeLevelIndex];
+
+    if (levelKey === "hard") {
+      return "bgmChallengeHard";
+    }
+
+    return "bgmChallenge";
+  }
+
+  if (selectedModeKey === "food") {
+    return "bgmFood";
+  }
+
+  return "bgmMenu";
 }
 
 async function saveScoreToFirebase() {
@@ -924,12 +997,14 @@ inputElement.addEventListener("input", checkInput);
 
 allRankingButton.addEventListener("click", () => {
   playSound("button");
+  playBgm("bgmMenu");
   showScreen("allRanking");
   loadAllRankingsFromFirebase();
 });
 
 allRankingBackButton.addEventListener("click", () => {
   playSound("button");
+  playBgm("bgmMenu");
   showScreen("mode");
 });
 
