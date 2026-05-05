@@ -134,6 +134,20 @@ const sounds = {
   button: new Audio("./assets/audio/button.mp3")
 };
 
+const soundToggleButton = document.getElementById("sound-toggle-button");
+
+soundToggleButton.addEventListener("click", () => {
+  isSoundEnabled = !isSoundEnabled;
+
+  if (isSoundEnabled) {
+    soundToggleButton.textContent = "SOUND ON";
+    startBgm();
+  } else {
+    soundToggleButton.textContent = "SOUND OFF";
+    stopBgm();
+  }
+});
+
 let isSoundEnabled = true;
 let isBgmStarted = false;
 
@@ -530,9 +544,19 @@ function changeChallengeLevel(direction) {
   const currentLevelKey = LEVEL_ORDER[challengeLevelIndex];
   const currentLevelName = LEVEL_LABELS[currentLevelKey];
 
+  //if (direction > 0 && challengeLevelIndex > oldLevelIndex) {
+  //  messageElement.textContent = `難易度アップ！ ${currentLevelName}`;
+  //} else if (direction < 0 && challengeLevelIndex < oldLevelIndex) {
+  //  messageElement.textContent = `難易度ダウン！ ${currentLevelName}`;
+  //} else {
+  //  messageElement.textContent = `${currentLevelName} キープ！`;
+  //}
+
   if (direction > 0 && challengeLevelIndex > oldLevelIndex) {
-    messageElement.textContent = `難易度アップ！ ${currentLevelName}`;
+    playSound("levelUp");
+  messageElement.textContent = `難易度アップ！ ${currentLevelName}`;
   } else if (direction < 0 && challengeLevelIndex < oldLevelIndex) {
+    playSound("levelDown");
     messageElement.textContent = `難易度ダウン！ ${currentLevelName}`;
   } else {
     messageElement.textContent = `${currentLevelName} キープ！`;
