@@ -11,7 +11,7 @@ body {
   color: white;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .game-container {
@@ -625,4 +625,9 @@ button:hover {
     /* 最後のコマ位置 */
     --character-last-frame: -504px;
   }
+}
+
+
+body.is-game-screen {
+  align-items: flex-start;
 }

@@ -469,6 +469,21 @@ function showScreen(screenName) {
 
   updateMenuCharacterVisibility(screenName);
   updateGameCharacterVisibility(screenName);
+  updateBodyLayout(screenName);
+}
+
+function updateBodyLayout(screenName) {
+  if (screenName === "game") {
+    document.body.classList.add("is-game-screen");
+  } else {
+    document.body.classList.remove("is-game-screen");
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto"
+    });
+  }
 }
 
 function updateMenuCharacterVisibility(screenName) {
@@ -809,13 +824,48 @@ async function startGame() {
   beginGame();
 }
 
+function isMobileScreen() {
+  return window.matchMedia("(max-width: 600px)").matches;
+}
+
+function focusInputSafely() {
+  if (!inputElement) {
+    return;
+  }
+
+  if (isMobileScreen()) {
+    // スマホでは、入力欄フォーカス時の自動スクロールをなるべく抑える
+    try {
+      inputElement.focus({
+        preventScroll: true
+      });
+    } catch (error) {
+      inputElement.focus();
+    }
+
+    // キーボード表示後に、ゲーム画面の上部へ戻す
+    setTimeout(() => {
+      gameScreen.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 250);
+
+    return;
+  }
+
+  inputElement.focus();
+}
+
+
 function beginGame() {
   isPlaying = true;
 
   messageElement.textContent = "";
 
   inputElement.disabled = false;
-  inputElement.focus();
+  //inputElement.focus();
+  focusInputSafely();
 
   startButton.disabled = true;
   startButton.textContent = "PLAYING";
