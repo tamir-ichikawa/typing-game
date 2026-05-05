@@ -466,10 +466,11 @@ button:hover {
   }
 
   .menu-character {
-    width: 128px;
-    height: 128px;
+    width: 84px;
+    height: 84px;
+    padding-right: 20px;
     top: 12px;
-    left: 2px;
+    left: 12px;
   }
 }
 
