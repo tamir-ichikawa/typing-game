@@ -67,9 +67,9 @@ const LEVEL_LABELS = {
 };
 
 const RANKING_LABELS = {
-  normal_easy: "通常モード / easy",
-  normal_normal: "通常モード / normal",
-  normal_hard: "通常モード / hard",
+  normal_easy: "通常モード / イージー",
+  normal_normal: "通常モード / ノーマル",
+  normal_hard: "通常モード / ハード",
   challenge_challenge: "チャレンジモード",
   food_easy: "早食いモード / 食べ物",
   food_normal: "早食いモード / 和洋中華",
@@ -79,24 +79,24 @@ const RANKING_LABELS = {
 const MODE_CONFIGS = {
   normal: {
     title: "通常モード",
-    description: "選んだ難易度の単語だけが出題されます。",
+    description: "選んだ難易度の単語だけが出題されるよ！",
     type: "fixed",
     difficulties: [
       {
         key: "easy",
-        label: "easy",
+        label: "イージー",
         description: "2〜3文字くらいの短い言葉",
         group: "normalEasy"
       },
       {
         key: "normal",
-        label: "normal",
+        label: "ノーマル",
         description: "3〜7文字くらいの言葉",
         group: "normalNormal"
       },
       {
         key: "hard",
-        label: "hard",
+        label: "ハード",
         description: "四字熟語・慣用句など",
         group: "normalHard"
       }
@@ -105,7 +105,7 @@ const MODE_CONFIGS = {
 
   challenge: {
     title: "チャレンジモード",
-    description: "EASYから開始。10秒以内に5単語正解で難易度アップ。失敗すると難易度ダウン。",
+    description: "10秒以内に5単語正解で難易度アップし、失敗すると難易度ダウンするよ！",
     type: "challenge",
     challengeGroups: {
       easy: "normalEasy",
@@ -116,32 +116,32 @@ const MODE_CONFIGS = {
       {
         key: "challenge",
         label: "チャレンジ開始",
-        description: "EASYから自動で難易度が変わります"
+        description: "難易度が変化するよ"
       }
     ]
   },
 
   food: {
     title: "早食いモード",
-    description: "食べ物・料理名だけが出題されます。",
+    description: "食べ物・料理名",
     type: "fixed",
     difficulties: [
       {
         key: "easy",
         label: "食べ物",
-        description: "イージー：身近な食べ物",
+        description: "イージー",
         group: "foodEasy"
       },
       {
         key: "normal",
         label: "和洋中華",
-        description: "ノーマル：いろいろな料理名",
+        description: "ノーマル",
         group: "foodNormal"
       },
       {
         key: "hard",
         label: "世界グルメ",
-        description: "ハード：世界の料理名",
+        description: "ハード",
         group: "foodHard"
       }
     ]
@@ -446,7 +446,8 @@ function initFirebase() {
     firebase.auth().signInAnonymously()
       .then((result) => {
         currentUser = result.user;
-        firebaseStatusElement.textContent = "Firebase接続OK";
+        //firebaseStatusElement.textContent = "Firebase接続OK";
+        firebaseStatusElement.textContent = "ランキング表示が利用できます";
         resolve(true);
       })
       .catch((error) => {
