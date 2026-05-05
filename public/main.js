@@ -727,6 +727,9 @@ function setCharacterState(stateName) {
     "character-finish"
   );
 
+  // アニメーションを確実に再発火させる
+  void gameCharacterSprite.offsetWidth;
+
   if (stateName === "correct") {
     gameCharacterSprite.classList.add("character-correct");
     return;
@@ -1391,6 +1394,8 @@ async function bootGame() {
     loadingPercent.textContent = "100%";
     loadingDetail.textContent = "読み込み完了！";
 
+    warmUpCharacterSprites();
+
     await sleep(300);
 
     loadingScreen.classList.add("hidden");
@@ -1399,11 +1404,28 @@ async function bootGame() {
     loadSavedPlayerName();
     updateSoundButtonLabels();
     setCharacterState("idle");
+
+    await warmUpCharacterSprites();
+
     showScreen("name");
   } catch (error) {
     console.error(error);
     loadingDetail.textContent = "読み込みに失敗しました。責任者に問い合わせてください。";
   }
+}
+
+async function warmUpCharacterSprites() {
+  if (!gameCharacterSprite) {
+    return;
+  }
+
+  setCharacterState("correct");
+  await sleep(80);
+
+  setCharacterState("finish");
+  await sleep(80);
+
+  setCharacterState("idle");
 }
 
 bootGame();
