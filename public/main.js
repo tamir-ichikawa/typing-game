@@ -534,6 +534,19 @@ function playCorrectAnimation() {
 
   setTimeout(() => {
     wordElement.classList.remove("word-correct-animation");
+    //scoreElement.classList.remove("score-pop-animation");
+  }, 250);
+}
+
+function playScoreAnimation() {
+  scoreElement.classList.remove("score-pop-animation");
+
+  // Braveでも再発火しやすくするための再描画
+  void scoreElement.offsetWidth;
+
+  scoreElement.classList.add("score-pop-animation");
+
+  setTimeout(() => {
     scoreElement.classList.remove("score-pop-animation");
   }, 250);
 }
@@ -762,6 +775,7 @@ function checkInput() {
 
     score++;
     scoreElement.textContent = score;
+    playScoreAnimation();
 
     if (isChallengeMode()) {
       challengeCorrectCount++;
